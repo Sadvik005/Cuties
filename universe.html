@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Our Universe · The Train Journey 🚂</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -13,9 +13,12 @@
   --surface:rgba(255,255,255,0.04);
   --glass:rgba(255,255,255,0.07);
   --border:rgba(255,255,255,0.1);
+  touch-action: manipulation;
+-webkit-text-size-adjust: 100%;
 }
 html{scroll-behavior:smooth}
 body{background:var(--deep);color:#fff;font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh;}
+
 #starfield{position:fixed;inset:0;z-index:0;pointer-events:none}
 .nebula{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:.15}
 .neb1{width:600px;height:600px;background:radial-gradient(circle,#7C3AED,transparent);top:-10%;left:-10%}
@@ -123,13 +126,35 @@ body{background:var(--deep);color:#fff;font-family:'Inter',sans-serif;overflow-x
 .end-sub{font-family:'Dancing Script',cursive;font-size:1.4rem;color:rgba(255,255,255,.4);margin-bottom:2.5rem}
 .end-note{font-size:.88rem;color:rgba(255,255,255,.28);line-height:1.8;max-width:440px;margin:0 auto 2.5rem}
 .end-back{background:linear-gradient(135deg,var(--rose),var(--violet));border:none;color:#fff;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:.9rem 2.4rem;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;}
-@media(max-width:600px){
-  .train-wrapper{width:320px;height:76px}
-  .smoke-container{left:calc(50% - 136px);bottom:152px}
-  .platform{height:64px}
-  #hud{padding:.7rem 1rem}
+@media(max-width:768px){
+  #hud{padding:.6rem 1rem;gap:.5rem}
   .hud-logo{font-size:1.1rem}
+  .hud-stop{font-size:.8rem}
+  .hud-counter{font-size:.75rem;display:none}
+  .train-wrapper{width:300px;height:68px;left:50%;transform:translateX(-50%)}
+  .smoke-container{left:calc(50% - 128px);bottom:148px}
+  .platform{height:60px}
+  .modal-inner{padding:0 .2rem}
+  .modal-city{font-size:clamp(1.4rem,7vw,2.5rem)}
+  .modal-tagline{font-size:1rem}
+  .modal-photo-frame{aspect-ratio:4/3}
+  .next-stop-btn,.final-stop-btn{width:100%;padding:.8rem 1rem;font-size:.72rem}
+  .stop-pip-row{gap:4px}
+  #end-screen{padding:1.5rem 1rem}
+  .end-h{font-size:clamp(1.8rem,8vw,3rem)}
+  .end-note{font-size:.82rem}
+  .intro-h{font-size:clamp(2rem,10vw,4rem)}
+  .route-preview{gap:0;max-width:320px}
+  .stop-line-mini{width:16px}
+  #photo-modal{padding:.8rem}
 }
+
+@media(max-width:400px){
+  .train-wrapper{width:240px;height:56px}
+  .smoke-container{left:calc(50% - 104px);bottom:136px}
+  .hud-logo{display:none}
+}
+
 </style>
 </head>
 <body>
