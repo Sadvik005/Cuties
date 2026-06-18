@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Universe · The Train Journey 🚂</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rose:#FF2D6B;--violet:#7C3AED;--gold:#F59E0B;
+  --cyan:#06B6D4;--deep:#00000F;--green:#34D399;
+  --surface:rgba(255,255,255,0.04);
+  --glass:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--deep);color:#fff;font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh;}
+#starfield{position:fixed;inset:0;z-index:0;pointer-events:none}
+.nebula{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:.15}
+.neb1{width:600px;height:600px;background:radial-gradient(circle,#7C3AED,transparent);top:-10%;left:-10%}
+.neb2{width:500px;height:500px;background:radial-gradient(circle,#FF2D6B,transparent);bottom:10%;right:-5%}
+.neb3{width:400px;height:400px;background:radial-gradient(circle,#06B6D4,transparent);top:40%;left:30%}
+.back-btn{position:fixed;top:1.5rem;left:1.5rem;z-index:200;background:rgba(0,0,15,.6);border:1px solid var(--border);color:rgba(255,255,255,.5);font-family:'Inter',sans-serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;padding:.6rem 1.2rem;border-radius:2px;cursor:pointer;text-decoration:none;backdrop-filter:blur(12px);transition:color .2s,border-color .2s;}
+.back-btn:hover{color:#fff;border-color:rgba(255,45,107,.4)}
+#intro-screen{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;background:radial-gradient(ellipse at center,#0d0025 0%,#00000F 70%);transition:opacity 1s ease,visibility 1s;}
+#intro-screen.gone{opacity:0;visibility:hidden;pointer-events:none}
+.intro-tag{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:2rem}
+.intro-h{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,8vw,6.5rem);font-weight:900;line-height:.92;margin-bottom:1.2rem;}
+.intro-h .line1{display:block;background:linear-gradient(135deg,#fff,rgba(255,255,255,.6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.intro-h .line2{display:block;font-style:italic;background:linear-gradient(135deg,var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.intro-sub{font-family:'Dancing Script',cursive;font-size:1.3rem;color:rgba(255,255,255,.3);margin-bottom:2.5rem}
+.start-btn{background:linear-gradient(135deg,var(--violet),var(--rose));border:none;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:1rem 2.8rem;border-radius:2px;cursor:pointer;box-shadow:0 0 50px rgba(124,58,237,.35);transition:transform .2s,box-shadow .2s;}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 0 70px rgba(255,45,107,.5)}
+#main{position:relative;z-index:2;opacity:0;transition:opacity .9s ease}
+.route-preview{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin-bottom:3.5rem;max-width:800px;}
+.route-stop-mini{display:flex;align-items:center;gap:0}
+.stop-dot-mini{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);flex-shrink:0;transition:background .3s}
+.stop-dot-mini.current{background:var(--rose);box-shadow:0 0 0 3px rgba(255,45,107,.25),0 0 10px rgba(255,45,107,.6);animation:pulseDot 1.5s ease-in-out infinite}
+.stop-line-mini{width:28px;height:1px;background:rgba(255,255,255,.12)}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 3px rgba(255,45,107,.25),0 0 10px rgba(255,45,107,.6)}50%{box-shadow:0 0 0 6px rgba(255,45,107,.1),0 0 20px rgba(255,45,107,.8)}}
+#train-scene{position:relative;z-index:2;background:linear-gradient(180deg,#010010 0%,#050018 100%);overflow:hidden;display:none;}
+#train-scene.active{display:block}
+.landscape{position:relative;width:100%;height:100vh;overflow:hidden;background:linear-gradient(180deg,#000510 0%,#080020 40%,#0a0025 70%,#0d0015 100%);}
+.terrain-layer{position:absolute;bottom:0;left:0;width:200%;height:100%;will-change:transform;}
+.terrain-back{position:absolute;bottom:80px;left:0;width:200%;height:260px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2400 260'%3E%3Cpath d='M0,200 Q200,60 400,180 Q600,100 800,160 Q1000,40 1200,140 Q1400,80 1600,170 Q1800,50 2000,150 Q2200,90 2400,180 L2400,260 L0,260 Z' fill='%23080020'/%3E%3C/svg%3E") repeat-x center bottom;animation:scrollTerrain 22s linear infinite;opacity:.7;}
+.terrain-mid{position:absolute;bottom:60px;left:0;width:200%;height:200px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2400 200'%3E%3Cpath d='M0,160 Q300,80 600,140 Q900,40 1200,120 Q1500,60 1800,130 Q2100,70 2400,150 L2400,200 L0,200 Z' fill='%230d0028'/%3E%3C/svg%3E") repeat-x center bottom;animation:scrollTerrain 12s linear infinite;}
+.terrain-fore{position:absolute;bottom:0;left:0;width:200%;height:120px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2400 120'%3E%3Cpath d='M0,80 Q200,20 400,70 Q600,10 800,60 Q1000,5 1200,55 Q1400,15 1600,65 Q1800,8 2000,58 Q2200,12 2400,60 L2400,120 L0,120 Z' fill='%231a0040'/%3E%3C/svg%3E") repeat-x center bottom;animation:scrollTerrain 7s linear infinite;}
+@keyframes scrollTerrain{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ground{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(180deg,#0a001a 0%,#110030 100%);}
+.tracks{position:absolute;bottom:30px;left:0;right:0;height:50px;overflow:hidden;}
+.rail{position:absolute;height:4px;background:linear-gradient(90deg,#2a2a5a,#4a4a8a,#2a2a5a);border-radius:2px;}
+.rail-top{top:8px;left:0;right:0}
+.rail-bottom{bottom:8px;left:0;right:0}
+.sleepers-row{position:absolute;top:0;left:0;width:200%;height:100%;display:flex;align-items:center;gap:28px;animation:scrollSleepers 1.2s linear infinite;}
+.sleeper{width:10px;height:38px;background:#1e1e4a;border-radius:1px;flex-shrink:0;opacity:.8}
+@keyframes scrollSleepers{0%{transform:translateX(0)}100%{transform:translateX(-160px)}}
+.trees-layer{position:absolute;bottom:78px;left:0;width:300%;height:120px;animation:scrollTrees 6s linear infinite;display:flex;align-items:flex-end;gap:60px;padding-left:20px;}
+.tree{position:relative;flex-shrink:0}
+.tree-trunk{width:6px;height:22px;background:#1a1030;margin:0 auto}
+.tree-top{width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:36px solid #12082a;margin-bottom:2px;filter:drop-shadow(0 0 6px rgba(124,58,237,.2))}
+@keyframes scrollTrees{0%{transform:translateX(0)}100%{transform:translateX(-33.33%)}}
+.scene-stars{position:absolute;top:0;left:0;right:0;bottom:180px;overflow:hidden}
+.train-wrapper{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);width:480px;height:110px;z-index:10;filter:drop-shadow(0 0 30px rgba(255,45,107,.2));}
+.train-svg{width:100%;height:100%}
+.smoke-container{position:absolute;bottom:178px;left:calc(50% - 200px);width:60px;height:80px;overflow:visible;z-index:12;pointer-events:none;}
+.smoke-puff{position:absolute;bottom:0;left:10px;width:24px;height:24px;border-radius:50%;background:rgba(180,160,220,.15);animation:smokePuff 2s ease-out infinite;}
+.smoke-puff:nth-child(2){animation-delay:.5s;left:16px}
+.smoke-puff:nth-child(3){animation-delay:1s;left:6px}
+@keyframes smokePuff{0%{transform:translateY(0) scale(1);opacity:.5}100%{transform:translateY(-70px) scale(2.8);opacity:0}}
+.platform{position:absolute;bottom:0;left:0;right:0;z-index:15;height:82px;background:linear-gradient(180deg,#120830 0%,#0a0020 100%);border-top:2px solid rgba(124,58,237,.3);display:flex;align-items:flex-start;justify-content:center;padding-top:8px;transform:translateY(100%);transition:transform .8s cubic-bezier(.22,.9,.36,1);}
+.platform.arrived{transform:translateY(0)}
+.platform-name{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);font-weight:600;}
+#hud{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(20px);background:rgba(0,0,15,.55);border-bottom:1px solid var(--border);opacity:0;transition:opacity .5s;}
+#hud.visible{opacity:1}
+.hud-logo{font-family:'Dancing Script',cursive;font-size:1.4rem;background:linear-gradient(90deg,var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hud-stop{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;}
+.hud-stop-sub{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);text-align:center;margin-top:.15rem}
+.hud-counter{font-family:'Playfair Display',serif;font-size:.9rem;color:rgba(255,255,255,.3);font-style:italic;white-space:nowrap;}
+#photo-modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(0,0,10,.88);backdrop-filter:blur(20px);opacity:0;pointer-events:none;transition:opacity .5s;padding:1.5rem;}
+#photo-modal.open{opacity:1;pointer-events:all}
+.modal-inner{max-width:680px;width:100%;text-align:center;transform:translateY(30px);transition:transform .5s cubic-bezier(.22,.9,.36,1);}
+#photo-modal.open .modal-inner{transform:translateY(0)}
+.modal-stop-label{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.6rem;}
+.modal-city{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,6vw,4rem);font-weight:900;line-height:1;margin-bottom:.4rem;}
+.modal-city-grad{background:linear-gradient(135deg,var(--gold),var(--rose),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-tagline{font-family:'Dancing Script',cursive;font-size:1.2rem;color:rgba(255,255,255,.4);margin-bottom:1.8rem}
+.modal-photo-frame{width:100%;aspect-ratio:16/9;border-radius:4px;overflow:hidden;position:relative;margin-bottom:1.8rem;border:1px solid rgba(255,45,107,.15);background:#000;}
+.modal-photo-frame img{width:100%;height:100%;object-fit:cover;animation:photoReveal .8s cubic-bezier(.22,.9,.36,1) both;display:block;}
+@keyframes photoReveal{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:scale(1)}}
+.photo-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:linear-gradient(135deg,#0d0828,#120a35);}
+.photo-placeholder .ph-icon{font-size:2.8rem;opacity:.35}
+.photo-placeholder .ph-city{font-family:'Playfair Display',serif;font-size:1.4rem;font-style:italic;background:linear-gradient(135deg,var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:.6;}
+.photo-placeholder .ph-hint{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.15);}
+.next-stop-btn{background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:.85rem 2.4rem;border-radius:2px;cursor:pointer;box-shadow:0 0 40px rgba(124,58,237,.3);transition:transform .2s,box-shadow .2s;}
+.next-stop-btn:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(124,58,237,.5)}
+.final-stop-btn{background:linear-gradient(135deg,var(--gold),var(--rose));border:none;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:.85rem 2.4rem;border-radius:2px;cursor:pointer;box-shadow:0 0 40px rgba(245,158,11,.3);transition:transform .2s;}
+.progress-rail{position:fixed;bottom:0;left:0;right:0;z-index:200;height:3px;background:rgba(255,255,255,.06);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--rose),var(--gold));transition:width 1.2s cubic-bezier(.22,.9,.36,1);box-shadow:0 0 12px rgba(255,45,107,.6);width:0%;}
+.stop-pip-row{display:flex;gap:6px;justify-content:center;margin-bottom:1.2rem}
+.stop-pip{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.12);transition:background .3s,transform .3s;}
+.stop-pip.done{background:var(--gold)}
+.stop-pip.active{background:var(--rose);transform:scale(1.5);box-shadow:0 0 8px var(--rose)}
+.train-arriving .terrain-back{animation-duration:4s!important}
+.train-arriving .terrain-mid{animation-duration:3s!important}
+.train-arriving .terrain-fore{animation-duration:2s!important}
+.train-arriving .trees-layer{animation-duration:2.5s!important}
+.train-arriving .sleepers-row{animation-duration:.5s!important}
+.train-braking .terrain-back{animation-duration:30s!important}
+.train-braking .terrain-mid{animation-duration:22s!important}
+.train-braking .terrain-fore{animation-duration:15s!important}
+.train-braking .trees-layer{animation-duration:18s!important}
+.train-braking .sleepers-row{animation-duration:3s!important}
+.speed-lines{position:absolute;top:0;left:0;right:0;bottom:100px;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .5s;}
+.speed-lines.active{opacity:.15}
+.speed-line{position:absolute;top:50%;left:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);transform:translateY(-50%);animation:speedLine 0.8s linear infinite;}
+@keyframes speedLine{from{left:110%;width:80px}to{left:-20%;width:160px}}
+#end-screen{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;background:radial-gradient(ellipse at center,#0d0025 0%,#00000F 70%);opacity:0;pointer-events:none;transition:opacity 1s;}
+#end-screen.open{opacity:1;pointer-events:all}
+.end-h{font-family:'Playfair Display',serif;font-size:clamp(2rem,7vw,5.5rem);font-weight:900;line-height:.92;margin-bottom:1.2rem;}
+.end-h .eg1{display:block;background:linear-gradient(135deg,#fff,rgba(255,255,255,.6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.end-h .eg2{display:block;font-style:italic;background:linear-gradient(135deg,var(--gold),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.end-sub{font-family:'Dancing Script',cursive;font-size:1.4rem;color:rgba(255,255,255,.4);margin-bottom:2.5rem}
+.end-note{font-size:.88rem;color:rgba(255,255,255,.28);line-height:1.8;max-width:440px;margin:0 auto 2.5rem}
+.end-back{background:linear-gradient(135deg,var(--rose),var(--violet));border:none;color:#fff;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:.9rem 2.4rem;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;}
+@media(max-width:600px){
+  .train-wrapper{width:320px;height:76px}
+  .smoke-container{left:calc(50% - 136px);bottom:152px}
+  .platform{height:64px}
+  #hud{padding:.7rem 1rem}
+  .hud-logo{font-size:1.1rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="nebula neb1"></div>
+<div class="nebula neb2"></div>
+<div class="nebula neb3"></div>
+
+
+
+<div id="intro-screen">
+  <p class="intro-tag">✦ board the train · our memories await ✦</p>
+  <h1 class="intro-h">
+    <span class="line1">Our Train</span>
+    <span class="line2">Journey</span>
+  </h1>
+<p class="intro-sub">10 stops. 10 memories. Every place we've been.</p>
+  <div class="route-preview" id="route-preview-intro"></div>
+  <button class="start-btn" id="startJourneyBtn">🚂 Board the Train →</button>
+</div>
+
+<div id="main">
+
+<div id="hud">
+  <div class="hud-logo">Our Journey</div>
+  <div>
+    <div class="hud-stop" id="hud-stop-name">Departing...</div>
+    <div class="hud-stop-sub" id="hud-stop-sub">NEXT STOP LOADING</div>
+  </div>
+  <div class="hud-counter" id="hud-counter">Stop 1 of 10</div>
+</div>
+
+<section id="train-scene" class="active">
+  <div class="landscape" id="landscape">
+    <canvas id="scene-star-canvas" class="scene-stars" style="position:absolute;inset:0;width:100%;height:calc(100% - 180px)"></canvas>
+    <div class="terrain-layer">
+      <div class="terrain-back"></div>
+      <div class="terrain-mid"></div>
+      <div class="terrain-fore"></div>
+    </div>
+    <div class="speed-lines active" id="speed-lines">
+      <div class="speed-line" style="top:20%;animation-delay:0s;width:120px"></div>
+      <div class="speed-line" style="top:35%;animation-delay:.15s;width:80px"></div>
+      <div class="speed-line" style="top:50%;animation-delay:.3s;width:160px"></div>
+      <div class="speed-line" style="top:65%;animation-delay:.08s;width:100px"></div>
+      <div class="speed-line" style="top:78%;animation-delay:.22s;width:140px"></div>
+    </div>
+    <div class="trees-layer" id="trees"></div>
+    <div class="ground"></div>
+    <div class="tracks">
+      <div class="rail rail-top"></div>
+      <div class="rail rail-bottom"></div>
+      <div class="sleepers-row" id="sleepers"></div>
+    </div>
+    <div class="smoke-container">
+      <div class="smoke-puff"></div>
+      <div class="smoke-puff"></div>
+      <div class="smoke-puff"></div>
+    </div>
+    <div class="train-wrapper">
+      <svg class="train-svg" viewBox="0 0 480 110" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="28" width="78" height="54" rx="4" fill="#0d0830"/>
+        <rect x="4" y="32" width="70" height="16" rx="2" fill="#160a40"/>
+        <rect x="4" y="52" width="70" height="26" rx="2" fill="#0a0628"/>
+        <rect x="74" y="58" width="12" height="6" rx="1" fill="#1a1050"/>
+        <circle cx="18" cy="82" r="13" fill="#0a0520" stroke="#1e0a50" stroke-width="2"/>
+        <circle cx="18" cy="82" r="7" fill="#130838" stroke="#2a1060" stroke-width="1.5"/>
+        <circle cx="18" cy="82" r="2.5" fill="#7C3AED" opacity=".6"/>
+        <circle cx="58" cy="82" r="13" fill="#0a0520" stroke="#1e0a50" stroke-width="2"/>
+        <circle cx="58" cy="82" r="7" fill="#130838" stroke="#2a1060" stroke-width="1.5"/>
+        <circle cx="58" cy="82" r="2.5" fill="#7C3AED" opacity=".6"/>
+        <rect x="82" y="18" width="270" height="64" rx="6" fill="#0f0935"/>
+        <rect x="288" y="4" width="64" height="78" rx="5" fill="#120a38"/>
+        <rect x="296" y="12" width="24" height="22" rx="3" fill="#F59E0B" opacity=".8"/>
+        <rect x="326" y="12" width="18" height="22" rx="3" fill="#F59E0B" opacity=".6"/>
+        <rect x="110" y="28" width="32" height="20" rx="3" fill="#F59E0B" opacity=".7"/>
+        <rect x="152" y="28" width="32" height="20" rx="3" fill="#F59E0B" opacity=".8"/>
+        <rect x="194" y="28" width="32" height="20" rx="3" fill="#F59E0B" opacity=".65"/>
+        <rect x="236" y="28" width="32" height="20" rx="3" fill="#F59E0B" opacity=".75"/>
+        <rect x="82" y="70" width="270" height="4" rx="1" fill="#7C3AED" opacity=".4"/>
+        <rect x="120" y="2" width="16" height="18" rx="3" fill="#0d0830"/>
+        <rect x="116" y="0" width="24" height="6" rx="2" fill="#160a40"/>
+        <ellipse cx="180" cy="18" rx="24" ry="12" fill="#100935"/>
+        <circle cx="148" cy="82" r="20" fill="#080420" stroke="#1e0a50" stroke-width="2.5"/>
+        <circle cx="148" cy="82" r="11" fill="#100830" stroke="#2a1060" stroke-width="2"/>
+        <circle cx="148" cy="82" r="4" fill="#7C3AED" opacity=".8"/>
+        <circle cx="198" cy="82" r="20" fill="#080420" stroke="#1e0a50" stroke-width="2.5"/>
+        <circle cx="198" cy="82" r="11" fill="#100830" stroke="#2a1060" stroke-width="2"/>
+        <circle cx="198" cy="82" r="4" fill="#7C3AED" opacity=".8"/>
+        <circle cx="248" cy="82" r="20" fill="#080420" stroke="#1e0a50" stroke-width="2.5"/>
+        <circle cx="248" cy="82" r="11" fill="#100830" stroke="#2a1060" stroke-width="2"/>
+        <circle cx="248" cy="82" r="4" fill="#7C3AED" opacity=".8"/>
+        <rect x="144" y="79" width="108" height="6" rx="3" fill="#1a0a45" opacity=".9"/>
+        <circle cx="308" cy="88" r="12" fill="#0a0520" stroke="#1e0a50" stroke-width="2"/>
+        <circle cx="308" cy="88" r="6" fill="#130838" stroke="#2a1060" stroke-width="1.5"/>
+        <circle cx="308" cy="88" r="2" fill="#FF2D6B" opacity=".7"/>
+        <circle cx="338" cy="88" r="12" fill="#0a0520" stroke="#1e0a50" stroke-width="2"/>
+        <circle cx="338" cy="88" r="6" fill="#130838" stroke="#2a1060" stroke-width="1.5"/>
+        <circle cx="338" cy="88" r="2" fill="#FF2D6B" opacity=".7"/>
+        <rect x="350" y="36" width="8" height="10" rx="2" fill="#F59E0B" opacity=".9"/>
+        <polygon points="352,82 380,96 380,82" fill="#0a0520" opacity=".8"/>
+        <line x1="358" y1="82" x2="380" y2="92" stroke="#1e0a50" stroke-width="1.5"/>
+        <line x1="364" y1="82" x2="380" y2="89" stroke="#1e0a50" stroke-width="1.5"/>
+        <rect x="352" y="60" width="22" height="8" rx="2" fill="#130840"/>
+        <defs>
+          <radialGradient id="headlight" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#F59E0B" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <polygon points="358,38 420,20 420,58 358,48" fill="url(#headlight)" opacity=".25"/>
+      </svg>
+    </div>
+    <div class="platform" id="platform">
+      <span class="platform-name" id="platform-name">PLATFORM 1</span>
+    </div>
+  </div>
+</section>
+
+<div id="photo-modal">
+  <div class="modal-inner">
+    <div class="stop-pip-row" id="pip-row"></div>
+    <div class="modal-stop-label" id="modal-stop-label">Stop 01</div>
+    <div class="modal-city" id="modal-city"><span class="modal-city-grad">City</span></div>
+    <div class="modal-tagline" id="modal-tagline">A memory from here 🌟</div>
+    <div class="modal-photo-frame" id="photo-frame"></div>
+    <button class="next-stop-btn" id="next-btn">Next Stop →</button>
+  </div>
+</div>
+
+<div id="end-screen">
+  <h1 class="end-h">
+    <span class="eg1">Journey</span>
+    <span class="eg2">Complete ✦</span>
+  </h1>
+  <p class="end-sub">Every stop, every memory, every us.</p>
+ <p class="end-note">From Thiruvannamalai to Chennai and everywhere in between — look at all the places we've been together. This isn't just a map, it's proof that we live a whole beautiful life.</p>
+  <a href="index.html" class="end-back">🌌 Back to Our Universe</a>
+</div>
+
+<div class="progress-rail"><div class="progress-fill" id="progress-fill"></div></div>
+
+</div>
+
+<script>
+/*
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  IMAGES — put these files in the same folder as this HTML:
+    img1.png  →  Thiruvannamalai
+    img2.png  →  Rajamundry
+    img3.png  →  Srirangam
+    img4.png  →  Hyderabad
+    img5.png  →  Vizag (1st visit)
+    img6.png  →  Chennai
+    img7.png  →  Vizag (again)
+    img8.png  →  Hyderabad (once more)
+    img9.png  →  Vizag (always)
+
+  You can use .jpg or .webp too — just update the img field below.
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*/
+const STOPS = [
+
+  { city:"Thiruvannamalai", label:"Stop 01", tagline:"The best place we've ever visited 🏔️",        platform:"THIRUVANNAMALAI",       img: "T1.jpg" },
+  { city:"Rajamundry",      label:"Stop 02", tagline:"Where every memory feels golden 🌊",           platform:"RAJAMUNDRY",            img:"R1.jpg" },
+  { city:"Srirangam",       label:"Stop 03", tagline:"Most expensive trip ever — worth every rupee 🪔", platform:"SRIRANGAM",          img:"S1.jpg" },
+  { city:"Hyderabad",       label:"Stop 04", tagline:"Manu buggal's engagement 💍",                  platform:"HYDERABAD",             img:"M1.jpg" },
+  { city:"Vizag",           label:"Stop 05", tagline:"Manu buggal's wedding — what a day 💒",        platform:"VIZAG · 1ST VISIT",     img:"M2.jpg" },
+  { city:"Chennai",         label:"Stop 06", tagline:"Worst trip but at least we found each other 🌅", platform:"CHENNAI",             img:"C1.jpg" },
+  { city:"Vizag",           label:"Stop 07", tagline:"Couldn't wait to see you again 💙",            platform:"VIZAG · AGAIN",         img:"V1.jpg" },
+  { city:"Hyderabad",       label:"Stop 08", tagline:"Once again, always Hyderabad 🌆",              platform:"HYDERABAD · ONCE MORE", img:"H1.jpg" },
+  { city:"Vizag",           label:"Stop 09", tagline:"Our favourite place in the whole world ✦",     platform:"VIZAG · ALWAYS",        img:"V2.jpg" },
+  { city:"Chennai",         label:"Stop 10", tagline:"Unexpected — but that's us, isn't it 🌟",      platform:"CHENNAI · ALWAYS",      img:"C2.jpg" },
+];
+
+let currentStop = 0;
+
+/* STARFIELD */
+const sfCanvas = document.getElementById('starfield');
+const sfCtx = sfCanvas.getContext('2d');
+function resizeSF(){ sfCanvas.width = window.innerWidth; sfCanvas.height = window.innerHeight; }
+resizeSF();
+const sfStars = Array.from({length:220}, () => ({x:Math.random()*sfCanvas.width,y:Math.random()*sfCanvas.height,r:Math.random()*1.2+.2,tw:Math.random()*Math.PI*2}));
+function drawSF(){
+  sfCtx.clearRect(0,0,sfCanvas.width,sfCanvas.height);
+  sfStars.forEach(s=>{s.tw+=.015;const a=.1+Math.abs(Math.sin(s.tw))*.7;sfCtx.beginPath();sfCtx.arc(s.x,s.y,s.r,0,Math.PI*2);sfCtx.fillStyle=`rgba(255,255,255,${a})`;sfCtx.fill()});
+  requestAnimationFrame(drawSF);
+}
+drawSF();
+window.addEventListener('resize', resizeSF);
+
+/* SCENE STARS */
+const scCanvas = document.getElementById('scene-star-canvas');
+const scCtx = scCanvas.getContext('2d');
+function resizeSC(){const l=document.getElementById('landscape');scCanvas.width=l.offsetWidth;scCanvas.height=l.offsetHeight-180;}
+resizeSC();
+const scStars = Array.from({length:160},()=>({x:Math.random()*2000,y:Math.random()*400,r:Math.random()*1+.2,tw:Math.random()*Math.PI*2}));
+function drawSC(){
+  scCtx.clearRect(0,0,scCanvas.width,scCanvas.height);
+  scStars.forEach(s=>{s.tw+=.012;const a=.1+Math.abs(Math.sin(s.tw))*.6;scCtx.beginPath();scCtx.arc(s.x%scCanvas.width,s.y%scCanvas.height,s.r,0,Math.PI*2);scCtx.fillStyle=`rgba(255,255,255,${a})`;scCtx.fill()});
+  requestAnimationFrame(drawSC);
+}
+drawSC();
+window.addEventListener('resize', resizeSC);
+
+/* TREES */
+const treesEl = document.getElementById('trees');
+for(let i=0;i<40;i++){const t=document.createElement('div');t.className='tree';const h=20+Math.random()*30;t.style.transform=`scaleY(${0.6+Math.random()*0.6})`;t.innerHTML=`<div class="tree-top" style="border-bottom-width:${h}px;margin-bottom:2px"></div><div class="tree-trunk" style="height:${h*.4}px"></div>`;treesEl.appendChild(t);}
+
+/* SLEEPERS */
+const row=document.getElementById('sleepers');
+for(let i=0;i<60;i++){const s=document.createElement('div');s.className='sleeper';row.appendChild(s);}
+
+/* ROUTE PREVIEW */
+const rpEl=document.getElementById('route-preview-intro');
+STOPS.forEach((s,i)=>{const w=document.createElement('div');w.className='route-stop-mini';const d=document.createElement('div');d.className='stop-dot-mini'+(i===0?' current':'');w.appendChild(d);if(i<STOPS.length-1){const l=document.createElement('div');l.className='stop-line-mini';w.appendChild(l);}rpEl.appendChild(w);});
+
+/* PIPS */
+const pipRow=document.getElementById('pip-row');
+STOPS.forEach((_,i)=>{const p=document.createElement('div');p.className='stop-pip'+(i===0?' active':'');pipRow.appendChild(p);});
+function updatePips(idx){document.querySelectorAll('.stop-pip').forEach((p,i)=>{p.className='stop-pip'+(i<idx?' done':i===idx?' active':'');});}
+
+/* HUD */
+function updateHUD(idx){
+  document.getElementById('hud-stop-name').textContent=STOPS[idx].city;
+  document.getElementById('hud-stop-sub').textContent='STOP '+(idx+1)+' OF '+STOPS.length;
+  document.getElementById('hud-counter').textContent='Stop '+(idx+1)+' of '+STOPS.length;
+  document.getElementById('progress-fill').style.width=((idx+1)/STOPS.length*100)+'%';
+}
+
+/* MODAL */
+function openModal(idx){
+  const stop=STOPS[idx];
+  document.getElementById('modal-stop-label').textContent=stop.label;
+  document.getElementById('modal-city').innerHTML=`<span class="modal-city-grad">${stop.city}</span>`;
+  document.getElementById('modal-tagline').textContent=stop.tagline;
+
+  const frame=document.getElementById('photo-frame');
+  frame.innerHTML='';
+
+  const img=new Image();
+  img.style.cssText='width:100%;height:100%;object-fit:cover;animation:photoReveal .8s cubic-bezier(.22,.9,.36,1) both';
+  img.onload=()=>{frame.innerHTML='';frame.appendChild(img);};
+  img.onerror=()=>{frame.innerHTML=`<div class="photo-placeholder"><div class="ph-icon">🌃</div><div class="ph-city">${stop.city}</div><div class="ph-hint">add ${stop.img} to folder</div></div>`;};
+  img.src=stop.img;
+
+  const nBtn=document.getElementById('next-btn');
+  if(idx===STOPS.length-1){nBtn.textContent='🎆 Complete Our Journey';nBtn.className='final-stop-btn';nBtn.onclick=endJourney;}
+  else{nBtn.textContent='Next Stop →';nBtn.className='next-stop-btn';nBtn.onclick=goNextStop;}
+
+  updatePips(idx);
+  document.getElementById('photo-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('photo-modal').classList.remove('open');}
+
+/* JOURNEY */
+function arriveAtStation(idx){
+  const lnd=document.getElementById('landscape');
+  lnd.classList.remove('train-arriving');
+  lnd.classList.add('train-braking');
+  document.getElementById('speed-lines').classList.remove('active');
+  const plat=document.getElementById('platform');
+  plat.classList.add('arrived');
+  document.getElementById('platform-name').textContent=STOPS[idx].platform;
+  setTimeout(()=>{updateHUD(idx);openModal(idx);},1400);
+}
+function departStation(){
+  closeModal();
+  document.getElementById('platform').classList.remove('arrived');
+  setTimeout(()=>{
+    const lnd=document.getElementById('landscape');
+    lnd.classList.remove('train-braking');
+    lnd.classList.add('train-arriving');
+    document.getElementById('speed-lines').classList.add('active');
+  },400);
+  setTimeout(()=>{arriveAtStation(currentStop);},2800);
+}
+function goNextStop(){currentStop++;departStation();}
+function endJourney(){closeModal();setTimeout(()=>{document.getElementById('end-screen').classList.add('open');launchEndFireworks();},500);}
+
+/* START */
+document.getElementById('startJourneyBtn').addEventListener('click',()=>{
+  document.getElementById('intro-screen').classList.add('gone');
+  document.getElementById('main').style.opacity='1';
+  document.getElementById('hud').classList.add('visible');
+  setTimeout(()=>document.getElementById('intro-screen').remove(),1200);
+  const lnd=document.getElementById('landscape');
+  lnd.classList.add('train-arriving');
+  document.getElementById('speed-lines').classList.add('active');
+  setTimeout(()=>arriveAtStation(0),2200);
+});
+
+/* FIREWORKS */
+function launchEndFireworks(){
+  const fwc=document.createElement('canvas');
+  fwc.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:999';
+  document.body.appendChild(fwc);
+  const ctx=fwc.getContext('2d');
+  fwc.width=window.innerWidth;fwc.height=window.innerHeight;
+  const cols=['#FF2D6B','#7C3AED','#06B6D4','#F59E0B','#fff','#EC4899','#34D399'];
+  let parts=[];
+  function burst(x,y){for(let i=0;i<90;i++){const a=Math.random()*Math.PI*2,s=Math.random()*7+2;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,decay:Math.random()*.016+.01,r:Math.random()*2.5+.8,color:cols[Math.floor(Math.random()*cols.length)]});}}
+  for(let i=0;i<14;i++)setTimeout(()=>burst(Math.random()*fwc.width*.8+fwc.width*.1,Math.random()*fwc.height*.5+fwc.height*.1),i*180);
+  function anim(){ctx.clearRect(0,0,fwc.width,fwc.height);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.vx*=.98;p.life-=p.decay;ctx.globalAlpha=Math.max(0,p.life);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill()});ctx.globalAlpha=1;parts=parts.filter(p=>p.life>0);if(parts.length>0)requestAnimationFrame(anim);}
+  anim();
+}
+</script>
+</body>
+</html>
