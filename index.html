@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>For My Sister From Another Mother 🌌</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -17,10 +17,13 @@
   --border:rgba(255,255,255,0.1);
 }
 html{scroll-behavior:smooth}
+
 body{
   background:var(--deep);color:#fff;
   font-family:'Inter',sans-serif;
   overflow-x:hidden;cursor:none;
+  touch-action: manipulation;
+  -webkit-text-size-adjust:100%;
 }
 
 /* CURSOR */
@@ -369,7 +372,20 @@ footer strong{color:var(--rose)}
   .reasons-grid{grid-template-columns:1fr 1fr}
   .intro-rings{width:300px;height:300px}
   .hero-geo{display:none}
+  .hero-title{font-size:clamp(2.4rem,10vw,5rem)}
+  .hero-btns{flex-direction:column;align-items:center}
+  .btn-p,.btn-g{width:100%;max-width:280px}
+  .sec{padding:5rem 1.2rem}
+  #memories{padding:5rem 1.2rem}
+  #moments{padding:5rem 1.2rem}
+  .letter-wrap{padding:4rem 1.2rem}
+  .special-para{padding:1.8rem 1.2rem}
+  .intro-h{font-size:clamp(2.2rem,10vw,5rem)}
+  .intro-sub{font-size:1.1rem}
+  .enter-btn{padding:.9rem 2rem}
+  .music-bar{bottom:1rem;right:1rem}
 }
+
 @media(max-width:480px){
   .masonry{columns:1}
   .reasons-grid{grid-template-columns:1fr}
